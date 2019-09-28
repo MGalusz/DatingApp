@@ -1,8 +1,11 @@
 ﻿using System.Text;
 using DatingApp.API.Data;
+using DatingApp.API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,7 +43,7 @@ namespace DatingApp.API
                             ValidateIssuer = false
                         };
                     }
-                )
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +52,21 @@ namespace DatingApp.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }else
+            {
+                app.UseExceptionHandler(builder =>
+               {
+                   builder.Run(async contex =>
+                  {
+                      contex.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+
+                      var error = contex.Features.Get<IExceptionHandlerFeature>();
+                      if (error != null)
+                      {
+                          contex.Response.AddAplicationError(error.Error.Message);
+                      }
+                  });
+               });
             }
 
             // app.UseHttpsRedirection();
