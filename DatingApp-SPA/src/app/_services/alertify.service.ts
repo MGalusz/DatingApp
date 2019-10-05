@@ -17,7 +17,7 @@ if (e) {
 }
 
 success (message: string) {
-  alertify.sucess(message);
+  alertify.success(message);
 }
 error (message: string) {
   alertify.error(message);
